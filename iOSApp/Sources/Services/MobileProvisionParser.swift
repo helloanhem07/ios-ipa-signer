@@ -48,12 +48,12 @@ public final class MobileProvisionParser {
             throw MobileProvisionError.emptyData
         }
 
-        // Step 1: Decode CMS signed message to obtain inner XML plist Data
+        // Step 1: Extract XML plist Data from CMS payload
+        var plistData: Data? = nil
+
+        #if os(macOS)
         var decoder: CMSDecoder?
         CMSDecoderCreate(&decoder)
-        
-        var plistData: Data? = nil
-        
         if let cms = decoder {
             data.withUnsafeBytes { ptr in
                 if let base = ptr.baseAddress {
@@ -68,8 +68,9 @@ public final class MobileProvisionParser {
                 plistData = cf as Data
             }
         }
+        #endif
 
-        // Step 1b: Fallback to XML regex extraction if CMS decoder failed
+        // Extract XML plist directly from profile bytes
         if plistData == nil {
             if let xmlStart = data.range(of: Data("<?xml".utf8)),
                let xmlEnd = data.range(of: Data("</plist>".utf8), options: .backwards) {

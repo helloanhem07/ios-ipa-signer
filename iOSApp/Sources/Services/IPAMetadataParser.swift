@@ -95,7 +95,7 @@ public final class IPAMetadataParser {
             let headerOffset = headerRange.lowerBound
             if headerOffset + 30 > zipData.count { break }
             
-            let compressionMethod = zipData[headerOffset + 8] | (UInt16(zipData[headerOffset + 9]) << 8)
+            let compressionMethod = UInt16(zipData[headerOffset + 8]) | (UInt16(zipData[headerOffset + 9]) << 8)
             let compressedSize = UInt32(zipData[headerOffset + 18]) |
                                  (UInt32(zipData[headerOffset + 19]) << 8) |
                                  (UInt32(zipData[headerOffset + 20]) << 16) |
@@ -104,8 +104,8 @@ public final class IPAMetadataParser {
                                    (UInt32(zipData[headerOffset + 23]) << 8) |
                                    (UInt32(zipData[headerOffset + 24]) << 16) |
                                    (UInt32(zipData[headerOffset + 25]) << 24)
-            let fileNameLength = Int(zipData[headerOffset + 26] | (UInt16(zipData[headerOffset + 27]) << 8))
-            let extraFieldLength = Int(zipData[headerOffset + 28] | (UInt16(zipData[headerOffset + 29]) << 8))
+            let fileNameLength = Int(UInt16(zipData[headerOffset + 26]) | (UInt16(zipData[headerOffset + 27]) << 8))
+            let extraFieldLength = Int(UInt16(zipData[headerOffset + 28]) | (UInt16(zipData[headerOffset + 29]) << 8))
             
             let fileDataStart = headerOffset + 30 + fileNameLength + extraFieldLength
             let nameStart = headerOffset + 30

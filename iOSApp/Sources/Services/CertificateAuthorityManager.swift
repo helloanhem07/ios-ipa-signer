@@ -21,8 +21,9 @@ public final class CertificateAuthorityManager {
             let options: [String: Any] = [kSecImportExportPassphrase as String: "signingapp"]
             var items: CFArray?
             let status = SecPKCS12Import(p12Data as CFData, options as CFDictionary, &items)
-            if status == errSecSuccess, let array = items as? [[String: Any]], let first = array.first {
-                return first[kSecImportItemIdentity as String] as? SecIdentity
+            if status == errSecSuccess, let array = items as? [[String: Any]], let first = array.first,
+               let identity = first[kSecImportItemIdentity as String] {
+                return (identity as! SecIdentity)
             }
         }
         return nil

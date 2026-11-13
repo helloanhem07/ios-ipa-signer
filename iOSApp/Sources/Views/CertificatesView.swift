@@ -197,7 +197,7 @@ public struct CertificatesView: View {
             Spacer()
             Image(systemName: "chevron.right")
                 .font(.caption)
-                .foregroundColor(.tertiaryLabel)
+                .foregroundColor(.secondary)
         }
         .padding(.vertical, 4)
     }
