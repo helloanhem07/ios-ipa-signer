@@ -45,8 +45,8 @@ public:
 // Thread-safe redirectable logging engine
 class ZLog {
 public:
-    enum Level { Info = 0, Warn = 1, Error = 2, Success = 3 };
-    typedef std::function<void(Level level, const std::string &msg)> LogCallback;
+    enum LogLevel { LevelInfo = 0, LevelWarn = 1, LevelError = 2, LevelSuccess = 3 };
+    typedef std::function<void(LogLevel level, const std::string &msg)> LogCallback;
 
     static void SetCallback(LogCallback cb) {
         std::lock_guard<std::mutex> lock(GetMutex());
@@ -56,28 +56,28 @@ public:
     static void Print(const char *format, ...) {
         va_list args;
         va_start(args, format);
-        LogInternal(Info, format, args);
+        LogInternal(LevelInfo, format, args);
         va_end(args);
     }
 
     static void Warn(const char *format, ...) {
         va_list args;
         va_start(args, format);
-        LogInternal(Warn, format, args);
+        LogInternal(LevelWarn, format, args);
         va_end(args);
     }
 
     static void Error(const char *format, ...) {
         va_list args;
         va_start(args, format);
-        LogInternal(Error, format, args);
+        LogInternal(LevelError, format, args);
         va_end(args);
     }
 
     static void Success(const char *format, ...) {
         va_list args;
         va_start(args, format);
-        LogInternal(Success, format, args);
+        LogInternal(LevelSuccess, format, args);
         va_end(args);
     }
 
@@ -92,7 +92,7 @@ private:
         return s_cb;
     }
 
-    static void LogInternal(Level level, const char *format, va_list args) {
+    static void LogInternal(LogLevel level, const char *format, va_list args) {
         char buffer[2048];
         vsnprintf(buffer, sizeof(buffer), format, args);
         std::string msg(buffer);
