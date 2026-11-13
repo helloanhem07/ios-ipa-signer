@@ -45,6 +45,15 @@ jobs:
           xcodebuild -version
           swift --version
 
+      - name: Setup OpenSSL iOS Framework
+        run: |
+          echo "==> Downloading official OpenSSL.xcframework for iOS..."
+          cd "$RUNNER_TEMP"
+          curl -sL -o OpenSSL.xcframework.zip https://github.com/krzyzanowskim/OpenSSL/releases/download/3.3.3001/OpenSSL.xcframework.zip
+          unzip -q OpenSSL.xcframework.zip
+          echo "Extracted OpenSSL.xcframework contents:"
+          ls -d "$RUNNER_TEMP/OpenSSL.xcframework"/*
+
       - name: Check Signing Assets
         id: check-secrets
         env:
@@ -57,7 +66,7 @@ jobs:
             echo "==> Complete code signing assets detected."
           else
             echo "HAVE_SECRETS=false" >> "$GITHUB_ENV"
-            echo "==> Code signing secrets not provided. Will build unsigned IPA (can be signed directly inside the app or with TrollStore/AltStore/Sideloadly)."
+            echo "==> Code signing secrets not provided. Building standalone unsigned IPA."
           fi
 
       - name: Provision Ephemeral Keychain & Import Certificate (If Secrets Available)
@@ -122,6 +131,9 @@ jobs:
             -configuration "$CONFIG" \
             -destination "generic/platform=iOS" \
             -derivedDataPath "$BUILD_DIR" \
+            FRAMEWORK_SEARCH_PATHS="$RUNNER_TEMP/OpenSSL.xcframework/ios-arm64 \$(inherited)" \
+            HEADER_SEARCH_PATHS="$RUNNER_TEMP/OpenSSL.xcframework/ios-arm64/OpenSSL.framework/Headers \$(inherited)" \
+            OTHER_LDFLAGS="-framework OpenSSL" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
@@ -134,6 +146,9 @@ jobs:
           fi
 
           echo "==> Found built bundle: $APP_PATH"
+          mkdir -p "$APP_PATH/Frameworks"
+          cp -R "$RUNNER_TEMP/OpenSSL.xcframework/ios-arm64/OpenSSL.framework" "$APP_PATH/Frameworks/" 2>/dev/null || true
+
           mkdir -p "$RUNNER_TEMP/Payload"
           cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
 
