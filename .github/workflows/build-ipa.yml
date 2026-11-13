@@ -1,34 +1,3 @@
-# ==============================================================================
-# GitHub Actions CI/CD Workflow: iOS IPA Remote Build and Packaging Automation
-# ==============================================================================
-# Target Runner: macos-14 (Apple Silicon M-series)
-#
-# REQUIRED REPOSITORY SECRETS:
-# ------------------------------------------------------------------------------
-# Configure the following secrets in GitHub Repository Settings:
-# (Settings -> Secrets and variables -> Actions -> New repository secret)
-#
-# 1. P12_BASE64
-#    Base64-encoded PKCS#12 (.p12 / .pfx) certificate archive containing the
-#    Apple Code Signing Certificate and Private Key.
-#    Encoding commands:
-#      - macOS / Linux: base64 -i cert.p12 | tr -d '\n'
-#      - Windows PS:    [Convert]::ToBase64String([IO.File]::ReadAllBytes("cert.p12"))
-#
-# 2. P12_PASSWORD
-#    Password used to protect and unlock the PKCS#12 certificate archive.
-#
-# 3. PROVISIONING_PROFILE_BASE64
-#    Base64-encoded Apple Provisioning Profile (.mobileprovision).
-#    Encoding commands:
-#      - macOS / Linux: base64 -i app.mobileprovision | tr -d '\n'
-#      - Windows PS:    [Convert]::ToBase64String([IO.File]::ReadAllBytes("app.mobileprovision"))
-#
-# 4. DEVELOPMENT_TEAM (Optional)
-#    10-character Apple Developer Team ID (e.g. ABCDE12345).
-#    If omitted, the workflow automatically extracts it from the provisioning profile.
-# ==============================================================================
-
 name: Build and Package iOS IPA
 
 on:
@@ -36,20 +5,10 @@ on:
     branches:
       - main
       - master
-    paths:
-      - 'iOSApp/**'
-      - 'scripts/**'
-      - '.github/workflows/build-ipa.yml'
-    tags:
-      - 'v*'
   pull_request:
     branches:
       - main
       - master
-    paths:
-      - 'iOSApp/**'
-      - 'scripts/**'
-      - '.github/workflows/build-ipa.yml'
   workflow_dispatch:
     inputs:
       build_configuration:
@@ -60,21 +19,9 @@ on:
         options:
           - Release
           - Debug
-      export_method:
-        description: 'IPA Export Method'
-        required: true
-        default: 'development'
-        type: choice
-        options:
-          - development
-          - ad-hoc
-          - enterprise
-          - app-store
-      xcode_version:
-        description: 'Developer Directory Path (leave default or specify Xcode path)'
-        required: false
-        default: '/Applications/Xcode_15.4.app/Contents/Developer'
-        type: string
+
+permissions:
+  contents: write
 
 concurrency:
   group: ios-build-${{ github.workflow }}-${{ github.ref }}
@@ -83,7 +30,7 @@ concurrency:
 jobs:
   build-ipa:
     name: Build & Package iOS IPA
-    runs-on: macos-14
+    runs-on: macos-15
     timeout-minutes: 60
 
     steps:
@@ -92,56 +39,29 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate Signing Secrets
+      - name: Show Xcode & Swift Environment
+        run: |
+          echo "==> Active Xcode Version:"
+          xcodebuild -version
+          swift --version
+
+      - name: Check Signing Assets
         id: check-secrets
         env:
           P12_BASE64: ${{ secrets.P12_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
           PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
         run: |
-          echo "==> Validating presence of code signing secrets..."
-          MISSING=0
-          if [ -z "$P12_BASE64" ]; then
-            echo "::warning ::Secret P12_BASE64 is not configured."
-            MISSING=1
-          fi
-          if [ -z "$P12_PASSWORD" ]; then
-            echo "::warning ::Secret P12_PASSWORD is not configured."
-            MISSING=1
-          fi
-          if [ -z "$PROVISIONING_PROFILE_BASE64" ]; then
-            echo "::warning ::Secret PROVISIONING_PROFILE_BASE64 is not configured."
-            MISSING=1
-          fi
-
-          if [ "$MISSING" -eq 1 ]; then
-            if [ "${{ github.event_name }}" = "pull_request" ] && [ "${{ github.event.pull_request.head.repo.full_name }}" != "${{ github.repository }}" ]; then
-              echo "::warning ::Skipping codesigned build for external fork pull request (secrets unavailable)."
-              echo "SKIP_SIGNING=true" >> "$GITHUB_ENV"
-              exit 0
-            else
-              echo "::error ::Required signing secrets (P12_BASE64, P12_PASSWORD, PROVISIONING_PROFILE_BASE64) are missing."
-              echo "Please configure repository secrets under Settings > Secrets and variables > Actions."
-              exit 1
-            fi
-          fi
-          echo "SKIP_SIGNING=false" >> "$GITHUB_ENV"
-
-      - name: Select Xcode Version
-        if: env.SKIP_SIGNING != 'true'
-        run: |
-          XCODE_PATH="${{ github.event.inputs.xcode_version || '/Applications/Xcode_15.4.app/Contents/Developer' }}"
-          if [ -d "$XCODE_PATH" ]; then
-            echo "Selecting specified Xcode toolchain: $XCODE_PATH"
-            sudo xcode-select -s "$XCODE_PATH"
+          if [ -n "$P12_BASE64" ] && [ -n "$P12_PASSWORD" ] && [ -n "$PROVISIONING_PROFILE_BASE64" ]; then
+            echo "HAVE_SECRETS=true" >> "$GITHUB_ENV"
+            echo "==> Complete code signing assets detected."
           else
-            echo "Specified Xcode path not found ($XCODE_PATH). Using default runner toolchain: $(xcode-select -p)"
+            echo "HAVE_SECRETS=false" >> "$GITHUB_ENV"
+            echo "==> Code signing secrets not provided. Will build unsigned IPA (can be signed directly inside the app or with TrollStore/AltStore/Sideloadly)."
           fi
-          echo "Active Xcode Version:"
-          xcodebuild -version
 
-      - name: Provision Ephemeral Keychain & Import Certificate
-        if: env.SKIP_SIGNING != 'true'
+      - name: Provision Ephemeral Keychain & Import Certificate (If Secrets Available)
+        if: env.HAVE_SECRETS == 'true'
         env:
           P12_BASE64: ${{ secrets.P12_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
@@ -149,223 +69,97 @@ jobs:
           echo "==> Setting up headless ephemeral build keychain..."
           KEYCHAIN_PATH="$RUNNER_TEMP/build.keychain-db"
           KEYCHAIN_PASSWORD=$(openssl rand -base64 24 | tr -d '\r\n')
-          
-          # Persist variables to GITHUB_ENV for subsequent steps and post-cleanup
           echo "KEYCHAIN_PATH=$KEYCHAIN_PATH" >> "$GITHUB_ENV"
-          echo "KEYCHAIN_PASSWORD=$KEYCHAIN_PASSWORD" >> "$GITHUB_ENV"
 
-          # 1. Create ephemeral keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-
-          # 2. Configure 6-hour timeout and prevent auto-lock on sleep
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
-
-          # 3. Unlock ephemeral keychain
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
 
-          # 4. Decode P12 certificate into ephemeral storage
           CERT_PATH="$RUNNER_TEMP/certificate.p12"
-          echo -n "$P12_BASE64" | (base64 -D > "$CERT_PATH" 2>/dev/null || base64 -d > "$CERT_PATH")
+          echo -n "$P12_BASE64" | base64 --decode -o "$CERT_PATH"
 
-          # 5. Import identity into ephemeral keychain with tool authorization
           security import "$CERT_PATH" \
             -k "$KEYCHAIN_PATH" \
             -P "$P12_PASSWORD" \
             -T /usr/bin/codesign \
             -T /usr/bin/security
 
-          # 6. Authorize Apple tools partition list to suppress all macOS GUI dialogs
           security set-key-partition-list \
             -S apple-tool:,apple: \
             -s \
             -k "$KEYCHAIN_PASSWORD" \
             "$KEYCHAIN_PATH"
 
-          # 7. Prepend ephemeral keychain to user search domain
           EXISTING_KEYCHAINS=$(security list-keychains -d user | tr -d '"' | xargs)
           security list-keychains -d user -s "$KEYCHAIN_PATH" $EXISTING_KEYCHAINS
           security default-keychain -s "$KEYCHAIN_PATH"
 
-          echo "==> Verified Installed Code Signing Identities:"
-          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
-
-      - name: Install Provisioning Profile & Parse Metadata
-        if: env.SKIP_SIGNING != 'true'
+      - name: Install Provisioning Profile (If Secrets Available)
+        if: env.HAVE_SECRETS == 'true'
         env:
           PROVISIONING_PROFILE_BASE64: ${{ secrets.PROVISIONING_PROFILE_BASE64 }}
-          DEVELOPMENT_TEAM: ${{ secrets.DEVELOPMENT_TEAM }}
         run: |
-          echo "==> Decoding Provisioning Profile..."
           PROFILE_PATH="$RUNNER_TEMP/profile.mobileprovision"
-          echo -n "$PROVISIONING_PROFILE_BASE64" | (base64 -D > "$PROFILE_PATH" 2>/dev/null || base64 -d > "$PROFILE_PATH")
-
-          # Extract UUID from CMS SignedData
+          echo -n "$PROVISIONING_PROFILE_BASE64" | base64 --decode -o "$PROFILE_PATH"
           PROFILE_UUID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract UUID raw - 2>/dev/null || true)
-          if [ -z "$PROFILE_UUID" ]; then
-            echo "::error ::Failed to extract UUID from provisioning profile. Invalid CMS or Plist payload."
-            exit 1
-          fi
-          echo "Extracted Profile UUID: $PROFILE_UUID"
           echo "PROFILE_UUID=$PROFILE_UUID" >> "$GITHUB_ENV"
 
-          # Extract Apple Developer Team ID
-          TEAM_ID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract TeamIdentifier.0 raw - 2>/dev/null || echo "")
-          if [ -z "$TEAM_ID" ]; then
-            TEAM_ID="$DEVELOPMENT_TEAM"
-          fi
-          if [ -z "$TEAM_ID" ]; then
-            APP_ID_TMP=$(security cms -D -i "$PROFILE_PATH" | plutil -extract Entitlements.application-identifier raw - 2>/dev/null || echo "")
-            TEAM_ID="${APP_ID_TMP%%.*}"
-          fi
-          echo "Extracted Developer Team ID: $TEAM_ID"
-          echo "TEAM_ID=$TEAM_ID" >> "$GITHUB_ENV"
-
-          # Extract Application Identifier and Bundle ID
-          APP_ID=$(security cms -D -i "$PROFILE_PATH" | plutil -extract Entitlements.application-identifier raw - 2>/dev/null || echo "")
-          BUNDLE_ID="${APP_ID#*.}"
-          if [ -z "$BUNDLE_ID" ] || [ "$BUNDLE_ID" = "*" ]; then
-            BUNDLE_ID="com.signing.iosapp"
-          fi
-          echo "Target Bundle Identifier: $BUNDLE_ID"
-          echo "BUNDLE_ID=$BUNDLE_ID" >> "$GITHUB_ENV"
-
-          # Install profile to system location
           PROFILES_DIR="$HOME/Library/MobileDevice/Provisioning Profiles"
           mkdir -p "$PROFILES_DIR"
           cp "$PROFILE_PATH" "$PROFILES_DIR/${PROFILE_UUID}.mobileprovision"
-          echo "Provisioning profile installed to $PROFILES_DIR/${PROFILE_UUID}.mobileprovision"
 
-      - name: Resolve Swift Package Dependencies
-        if: env.SKIP_SIGNING != 'true'
+      - name: Build and Package iOS Application (.app)
         run: |
+          CONFIG="${{ github.event.inputs.build_configuration || 'Release' }}"
           PROJECT_PATH="iOSApp/iOSApp.xcodeproj"
           SCHEME="iOSApp"
-          if [ -d "$PROJECT_PATH" ]; then
-            echo "==> Resolving Swift package dependencies for $PROJECT_PATH ($SCHEME)..."
-            xcodebuild -resolvePackageDependencies \
-              -project "$PROJECT_PATH" \
-              -scheme "$SCHEME" \
-              -clonedSourcePackagesDirPath "$RUNNER_TEMP/SourcePackages" || true
-          else
-            echo "Xcode project not found at $PROJECT_PATH; skipping package dependency resolution."
-          fi
+          BUILD_DIR="$RUNNER_TEMP/BuildOutput"
 
-      - name: Build Application Archive (.xcarchive)
-        if: env.SKIP_SIGNING != 'true'
-        env:
-          CONFIG: ${{ github.event.inputs.build_configuration || 'Release' }}
-        run: |
-          PROJECT_PATH="iOSApp/iOSApp.xcodeproj"
-          SCHEME="iOSApp"
-          ARCHIVE_PATH="$RUNNER_TEMP/iOSApp.xcarchive"
-          echo "ARCHIVE_PATH=$ARCHIVE_PATH" >> "$GITHUB_ENV"
-
-          if [ ! -d "$PROJECT_PATH" ]; then
-            echo "::error ::Target Xcode project not found at $PROJECT_PATH."
-            exit 1
-          fi
-
-          echo "==> Building xcarchive ($CONFIG) targeting generic/platform=iOS..."
-          xcodebuild archive \
+          echo "==> Building $SCHEME targeting generic/platform=iOS ($CONFIG)..."
+          xcodebuild build \
             -project "$PROJECT_PATH" \
             -scheme "$SCHEME" \
             -configuration "$CONFIG" \
             -destination "generic/platform=iOS" \
-            -archivePath "$ARCHIVE_PATH" \
-            CODE_SIGN_STYLE=Manual \
-            DEVELOPMENT_TEAM="$TEAM_ID" \
-            PROVISIONING_PROFILE="$PROFILE_UUID" \
-            PROVISIONING_PROFILE_SPECIFIER="$PROFILE_UUID" \
+            -derivedDataPath "$BUILD_DIR" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
             -quiet
 
-          echo "Successfully created archive at $ARCHIVE_PATH"
-
-      - name: Export IPA from Archive
-        if: env.SKIP_SIGNING != 'true'
-        env:
-          EXPORT_METHOD: ${{ github.event.inputs.export_method || 'development' }}
-        run: |
-          EXPORT_DIR="$RUNNER_TEMP/export"
-          mkdir -p "$EXPORT_DIR"
-          echo "EXPORT_DIR=$EXPORT_DIR" >> "$GITHUB_ENV"
-
-          EXPORT_PLIST="$RUNNER_TEMP/ExportOptions.plist"
-          echo "==> Generating dynamic ExportOptions.plist (Method: $EXPORT_METHOD, Team: $TEAM_ID, Bundle: $BUNDLE_ID)..."
-
-          cat <<EOF > "$EXPORT_PLIST"
-          <?xml version="1.0" encoding="UTF-8"?>
-          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-          <plist version="1.0">
-          <dict>
-              <key>method</key>
-              <string>${EXPORT_METHOD}</string>
-              <key>teamID</key>
-              <string>${TEAM_ID}</string>
-              <key>signingStyle</key>
-              <string>manual</string>
-              <key>provisioningProfiles</key>
-              <dict>
-                  <key>${BUNDLE_ID}</key>
-                  <string>${PROFILE_UUID}</string>
-              </dict>
-              <key>compileBitcode</key>
-              <false/>
-              <key>thinning</key>
-              <string>&lt;none&gt;</string>
-              <key>destination</key>
-              <string>export</string>
-              <key>stripSwiftSymbols</key>
-              <true/>
-          </dict>
-          </plist>
-          EOF
-
-          echo "==> Invoking xcodebuild -exportArchive..."
-          xcodebuild -exportArchive \
-            -archivePath "$ARCHIVE_PATH" \
-            -exportOptionsPlist "$EXPORT_PLIST" \
-            -exportPath "$EXPORT_DIR" \
-            -allowProvisioningUpdates
-
-          # Verify that an IPA was generated
-          if ls "$EXPORT_DIR"/*.ipa 1> /dev/null 2>&1; then
-            echo "==> Export successful! Output artifacts:"
-            ls -lh "$EXPORT_DIR"/*.ipa
-          else
-            echo "::error ::Export step finished but no .ipa package was found in $EXPORT_DIR."
+          APP_PATH=$(find "$BUILD_DIR/Build/Products" -name "*.app" | head -n 1)
+          if [ -z "$APP_PATH" ]; then
+            echo "::error ::Built .app bundle not found in Products."
             exit 1
           fi
 
-      - name: Upload Signed IPA Artifact
-        if: env.SKIP_SIGNING != 'true'
+          echo "==> Found built bundle: $APP_PATH"
+          mkdir -p "$RUNNER_TEMP/Payload"
+          cp -R "$APP_PATH" "$RUNNER_TEMP/Payload/"
+
+          mkdir -p output
+          cd "$RUNNER_TEMP"
+          zip -qr "$GITHUB_WORKSPACE/output/iOSApp.ipa" Payload/
+          cd "$GITHUB_WORKSPACE"
+
+          echo "==> Successfully created IPA package:"
+          ls -lh output/iOSApp.ipa
+
+      - name: Upload iOSApp IPA Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: Signed-iOS-App-IPA
-          path: ${{ env.EXPORT_DIR }}/*.ipa
+          name: iOSApp-IPA
+          path: output/iOSApp.ipa
           retention-days: 14
-          if-no-files-found: error
 
-      - name: Post-Build Ephemeral Security Cleanup
-        if: always()
+      - name: Create or Update GitHub Release
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "==> Initiating post-build ephemeral security cleanup..."
-          # 1. Destroy ephemeral keychain
-          if [ -n "$KEYCHAIN_PATH" ] && [ -f "$KEYCHAIN_PATH" ]; then
-            echo "Deleting temporary build keychain: $KEYCHAIN_PATH"
-            security delete-keychain "$KEYCHAIN_PATH" || true
-            security delete-keychain "${KEYCHAIN_PATH%-db}" 2>/dev/null || true
-          fi
-
-          # 2. Delete installed provisioning profile from user Library
-          if [ -n "$PROFILE_UUID" ]; then
-            echo "Removing installed provisioning profile: $PROFILE_UUID"
-            rm -f "$HOME/Library/MobileDevice/Provisioning Profiles/${PROFILE_UUID}.mobileprovision" || true
-          fi
-
-          # 3. Clean decoded secrets and temporary export options
-          echo "Scrubbing temporary files from $RUNNER_TEMP..."
-          rm -f "$RUNNER_TEMP/certificate.p12" \
-                "$RUNNER_TEMP/profile.mobileprovision" \
-                "$RUNNER_TEMP/ExportOptions.plist" || true
-
-          echo "Ephemeral security cleanup complete."
+          TAG_NAME="v1.0-release"
+          gh release delete "$TAG_NAME" --cleanup-tag -y 2>/dev/null || true
+          gh release create "$TAG_NAME" output/iOSApp.ipa \
+            --title "iOSApp IPA - Sẵn sàng cài đặt" \
+            --notes "Bản build IPA được biên dịch tự động qua Xcode trên GitHub Actions runner macOS. Bạn có thể cài đặt trực tiếp qua TrollStore, AltStore, Sideloadly hoặc import vào app để tự ký on-device." \
+            --latest
