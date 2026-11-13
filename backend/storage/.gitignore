@@ -1,0 +1,6 @@
+# Ignore all generated job scratchpads and temporary files
+jobs/*
+!jobs/.gitkeep
+*
+!.gitignore
+!jobs/

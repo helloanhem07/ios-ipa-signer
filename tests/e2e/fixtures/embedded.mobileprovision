@@ -1,0 +1,45 @@
+0‚¾*†H†÷‚±<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>AppIDName</key>
+	<string>MockApp</string>
+	<key>ApplicationIdentifierPrefix</key>
+	<array>
+		<string>ABCDE12345</string>
+	</array>
+	<key>CreationDate</key>
+	<string>2026-01-01T00:00:00Z</string>
+	<key>DeveloperCertificates</key>
+	<array/>
+	<key>Entitlements</key>
+	<dict>
+		<key>application-identifier</key>
+		<string>ABCDE12345.com.example.mockapp</string>
+		<key>com.apple.developer.team-identifier</key>
+		<string>ABCDE12345</string>
+		<key>get-task-allow</key>
+		<true/>
+		<key>keychain-access-groups</key>
+		<array>
+			<string>ABCDE12345.*</string>
+		</array>
+	</dict>
+	<key>ExpirationDate</key>
+	<string>2027-01-01T00:00:00Z</string>
+	<key>Name</key>
+	<string>MockApp Mock Provisioning Profile</string>
+	<key>TeamIdentifier</key>
+	<array>
+		<string>ABCDE12345</string>
+	</array>
+	<key>TeamName</key>
+	<string>Mock Development Team</string>
+	<key>TimeToLive</key>
+	<integer>365</integer>
+	<key>UUID</key>
+	<string>74185617-6F60-4F0C-9029-EA660B59FF47</string>
+	<key>Version</key>
+	<integer>1</integer>
+</dict>
+</plist>

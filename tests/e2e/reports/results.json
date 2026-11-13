@@ -1,0 +1,515 @@
+{
+  "timestamp": "2026-11-13T21:42:35Z",
+  "tier": "all",
+  "total": 72,
+  "passed": 72,
+  "failed": 0,
+  "errors": 0,
+  "duration_seconds": 2.078,
+  "records": [
+    {
+      "class": "TestBackendAPI",
+      "name": "test_t1_d1_01_health_check_endpoint",
+      "status": "PASSED",
+      "duration_sec": 0.016,
+      "error": null
+    },
+    {
+      "class": "TestBackendAPI",
+      "name": "test_t1_d1_02_job_submission_accepted",
+      "status": "PASSED",
+      "duration_sec": 0.094,
+      "error": null
+    },
+    {
+      "class": "TestBackendAPI",
+      "name": "test_t1_d1_03_job_status_polling_completion",
+      "status": "PASSED",
+      "duration_sec": 0.062,
+      "error": null
+    },
+    {
+      "class": "TestBackendAPI",
+      "name": "test_t1_d1_04_download_signed_ipa_artifact",
+      "status": "PASSED",
+      "duration_sec": 0.078,
+      "error": null
+    },
+    {
+      "class": "TestBackendAPI",
+      "name": "test_t1_d1_05_job_workspace_isolation",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestBackendAPI",
+      "name": "test_t1_d1_06_custom_metadata_overrides",
+      "status": "PASSED",
+      "duration_sec": 0.063,
+      "error": null
+    },
+    {
+      "class": "TestCICDPipeline",
+      "name": "test_t1_d5_01_github_actions_workflow_syntax",
+      "status": "PASSED",
+      "duration_sec": 0.015,
+      "error": null
+    },
+    {
+      "class": "TestCICDPipeline",
+      "name": "test_t1_d5_02_github_actions_build_steps",
+      "status": "PASSED",
+      "duration_sec": 0.032,
+      "error": null
+    },
+    {
+      "class": "TestCICDPipeline",
+      "name": "test_t1_d5_03_github_secrets_documentation",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestCICDPipeline",
+      "name": "test_t1_d5_04_macos_bash_build_script_interface",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestCICDPipeline",
+      "name": "test_t1_d5_05_powershell_build_script_interface",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestCICDPipeline",
+      "name": "test_t1_d5_06_export_options_plist_generation",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSApp",
+      "name": "test_t1_d4_01_xcode_project_structure",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSApp",
+      "name": "test_t1_d4_02_swiftui_views_presence",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSApp",
+      "name": "test_t1_d4_03_mvvm_model_contracts",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSApp",
+      "name": "test_t1_d4_04_objc_zsign_bridge_interface",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSApp",
+      "name": "test_t1_d4_05_local_ota_server_network_framework",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSApp",
+      "name": "test_t1_d4_06_remote_signing_client_api_contract",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestMockFixtures",
+      "name": "test_t1_d6_01_mock_fixture_generator_powershell",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestMockFixtures",
+      "name": "test_t1_d6_02_mock_p12_x509_validity",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestMockFixtures",
+      "name": "test_t1_d6_03_mock_mobileprovision_cms_envelope",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestMockFixtures",
+      "name": "test_t1_d6_04_mock_unsigned_ipa_structure",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestMockFixtures",
+      "name": "test_t1_d6_05_standalone_verification_script_powershell",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestMockFixtures",
+      "name": "test_t1_d6_06_standalone_verification_script_python",
+      "status": "PASSED",
+      "duration_sec": 0.015,
+      "error": null
+    },
+    {
+      "class": "TestOTAManifest",
+      "name": "test_t1_d3_01_manifest_endpoint_content_type",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTAManifest",
+      "name": "test_t1_d3_02_manifest_apple_dtd_compliance",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTAManifest",
+      "name": "test_t1_d3_03_manifest_dictionary_structure",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTAManifest",
+      "name": "test_t1_d3_04_manifest_asset_package_url",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTAManifest",
+      "name": "test_t1_d3_05_manifest_metadata_properties",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTAManifest",
+      "name": "test_t1_d3_06_ota_install_landing_page_html",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestSigningEngines",
+      "name": "test_t1_d2_01_fallback_engine_structure_generation",
+      "status": "PASSED",
+      "duration_sec": 0.078,
+      "error": null
+    },
+    {
+      "class": "TestSigningEngines",
+      "name": "test_t1_d2_02_zsign_cli_argument_construction",
+      "status": "PASSED",
+      "duration_sec": 0.282,
+      "error": null
+    },
+    {
+      "class": "TestSigningEngines",
+      "name": "test_t1_d2_03_macho_binary_signature_integrity",
+      "status": "PASSED",
+      "duration_sec": 0.046,
+      "error": null
+    },
+    {
+      "class": "TestSigningEngines",
+      "name": "test_t1_d2_04_coderesources_plist_schema",
+      "status": "PASSED",
+      "duration_sec": 0.016,
+      "error": null
+    },
+    {
+      "class": "TestSigningEngines",
+      "name": "test_t1_d2_05_mobileprovision_injection_match",
+      "status": "PASSED",
+      "duration_sec": 0.031,
+      "error": null
+    },
+    {
+      "class": "TestSigningEngines",
+      "name": "test_t1_d2_06_engine_selection_fallback_resilience",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestBackendBoundary",
+      "name": "test_t2_d1_01_missing_required_form_fields",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestBackendBoundary",
+      "name": "test_t2_d1_02_oversized_upload_rejection",
+      "status": "PASSED",
+      "duration_sec": 0.016,
+      "error": null
+    },
+    {
+      "class": "TestBackendBoundary",
+      "name": "test_t2_d1_03_invalid_job_uuid_query",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestBackendBoundary",
+      "name": "test_t2_d1_04_empty_zero_byte_file_uploads",
+      "status": "PASSED",
+      "duration_sec": 0.015,
+      "error": null
+    },
+    {
+      "class": "TestBackendBoundary",
+      "name": "test_t2_d1_05_duplicate_submissions_idempotency",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestBackendBoundary",
+      "name": "test_t2_d1_06_special_characters_in_bundle_name",
+      "status": "PASSED",
+      "duration_sec": 0.063,
+      "error": null
+    },
+    {
+      "class": "TestCICDBoundary",
+      "name": "test_t2_d5_01_missing_github_actions_secrets",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestCICDBoundary",
+      "name": "test_t2_d5_02_invalid_base64_in_github_secret",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestCICDBoundary",
+      "name": "test_t2_d5_03_ephemeral_keychain_cleanup_on_failure",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestCICDBoundary",
+      "name": "test_t2_d5_04_bash_script_missing_mandatory_arguments",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestCICDBoundary",
+      "name": "test_t2_d5_05_powershell_script_invalid_configuration",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestCICDBoundary",
+      "name": "test_t2_d5_06_unsupported_export_method_validation",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestFixturesBoundary",
+      "name": "test_t2_d6_01_invalid_fixture_output_path",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestFixturesBoundary",
+      "name": "test_t2_d6_02_empty_password_parameter_handling",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestFixturesBoundary",
+      "name": "test_t2_d6_03_macho_odd_byte_length_padding_alignment",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestFixturesBoundary",
+      "name": "test_t2_d6_04_tampered_asn1_der_tags",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestFixturesBoundary",
+      "name": "test_t2_d6_05_server_down_verification_handling",
+      "status": "PASSED",
+      "duration_sec": 1.015,
+      "error": null
+    },
+    {
+      "class": "TestFixturesBoundary",
+      "name": "test_t2_d6_06_temp_scratchpad_cleanup_on_interruption",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSBoundary",
+      "name": "test_t2_d4_01_zero_certificates_imported_state",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSBoundary",
+      "name": "test_t2_d4_02_expired_certificate_import_handling",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSBoundary",
+      "name": "test_t2_d4_03_mismatched_provisioning_profile_warning",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSBoundary",
+      "name": "test_t2_d4_04_local_ota_server_port_collision",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSBoundary",
+      "name": "test_t2_d4_05_remote_server_connection_timeout",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestIOSBoundary",
+      "name": "test_t2_d4_06_zsign_bridge_memory_management",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTABoundary",
+      "name": "test_t2_d3_01_manifest_query_for_in_progress_job",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTABoundary",
+      "name": "test_t2_d3_02_manifest_query_for_failed_job",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTABoundary",
+      "name": "test_t2_d3_03_xml_injection_characters_in_title",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTABoundary",
+      "name": "test_t2_d3_04_unicode_and_emoji_bundle_name",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTABoundary",
+      "name": "test_t2_d3_05_ota_install_page_missing_job",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestOTABoundary",
+      "name": "test_t2_d3_06_url_encoded_spaces_and_special_chars",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestSigningBoundary",
+      "name": "test_t2_d2_01_wrong_p12_password",
+      "status": "PASSED",
+      "duration_sec": 0.031,
+      "error": null
+    },
+    {
+      "class": "TestSigningBoundary",
+      "name": "test_t2_d2_02_corrupted_p12_file_bytes",
+      "status": "PASSED",
+      "duration_sec": 0.031,
+      "error": null
+    },
+    {
+      "class": "TestSigningBoundary",
+      "name": "test_t2_d2_03_corrupted_ipa_non_zip",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    },
+    {
+      "class": "TestSigningBoundary",
+      "name": "test_t2_d2_04_corrupted_ipa_missing_payload",
+      "status": "PASSED",
+      "duration_sec": 0.016,
+      "error": null
+    },
+    {
+      "class": "TestSigningBoundary",
+      "name": "test_t2_d2_05_corrupted_ipa_missing_info_plist",
+      "status": "PASSED",
+      "duration_sec": 0.016,
+      "error": null
+    },
+    {
+      "class": "TestSigningBoundary",
+      "name": "test_t2_d2_06_malformed_mobileprovision_non_cms",
+      "status": "PASSED",
+      "duration_sec": 0.0,
+      "error": null
+    }
+  ]
+}
